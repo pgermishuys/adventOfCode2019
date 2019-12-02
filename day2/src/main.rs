@@ -25,17 +25,17 @@ fn process_opcode(mut program: Vec<i64>, program_pointer: usize) -> Vec<i64> {
     return program;
 }
 
-fn patch_program(mut program: Vec<i64>) -> Vec<i64> {
-    program[1] = 12;
-    program[2] = 2;
+fn patch_program(mut program: Vec<i64>, noun: i64, verb: i64) -> Vec<i64> {
+    program[1] = noun;
+    program[2] = verb;
     return program;
 }
 
-fn main() {
+fn read_program() -> Vec<i64> {
     let file_name_part1 = "part1.txt";
     let file_part1 = File::open(file_name_part1).unwrap();
-    let reader_part1 = BufReader::new(file_part1);
 
+    let reader_part1 = BufReader::new(file_part1);
     let mut program: Vec<i64> = Vec::new();
     for (_, line) in reader_part1.lines().enumerate() {
         let line = line.unwrap();
@@ -43,6 +43,27 @@ fn main() {
             program.push(item.parse::<i64>().unwrap());
         }
     }
+    return program;
+}
 
-    println!("Part One: {:?}", process_program(patch_program(program), 0));
+fn main() {
+    println!(
+        "Part One: {:?}",
+        process_program(patch_program(read_program(), 12, 2), 0)
+    );
+    for noun in 0..99 {
+        for verb in 0..99 {
+            let result = process_program(patch_program(read_program(), noun, verb), 0);
+            println!("Part Two: {:?}", result);
+            if result[0] == 19690720 {
+                println!(
+                    "Answer found. Noun: {}, Verb: {}. (100 * Verb) + Noun = {}",
+                    noun,
+                    verb,
+                    (100 * noun) + verb
+                );
+                return;
+            }
+        }
+    }
 }
