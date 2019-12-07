@@ -2,12 +2,20 @@ use std::fs::File;
 use std::io;
 use std::io::prelude::*;
 use std::io::BufReader;
-use std::io::*;
 
 fn run_program(mut memory: std::vec::Vec<i32>, mut pointer: i32) -> std::vec::Vec<i32> {
     let instruction: i32 = memory[pointer as usize];
     let opcode = instruction % 1000;
+    println!("Memory: {:?}", memory);
+    println!("Pointer: {:?}", pointer);
+    println!("Memory at Pointer: {:?}", memory[pointer as usize]);
+    println!("Instruction: {:?}", instruction);
     println!("Opcode: {:?}", opcode);
+    println!("Press any key to continue...");
+    let mut wait = String::new();
+    io::stdin()
+        .read_line(&mut wait)
+        .expect("error: unable to read user input");
     if opcode == 99 {
         return memory;
     }
@@ -17,10 +25,10 @@ fn run_program(mut memory: std::vec::Vec<i32>, mut pointer: i32) -> std::vec::Ve
         let mode = get_mode(instruction, 0);
         let second_value = get_input_for_mode(mode, pointer + 2, &memory);
         let result_address = memory[(pointer + 3) as usize];
-        // println!(
-        //     "OpCode(1) - first_value: {:?}, second_value: {:?}, result_address: {:?}",
-        //     first_value, second_value, result_address
-        // );
+        println!(
+            "OpCode(1) - first_value: {:?}, second_value: {:?}, result_address: {:?}",
+            first_value, second_value, result_address
+        );
         memory[result_address as usize] = first_value + second_value;
         pointer = pointer + 4;
     }
@@ -38,12 +46,12 @@ fn run_program(mut memory: std::vec::Vec<i32>, mut pointer: i32) -> std::vec::Ve
         pointer = pointer + 4;
     }
     if opcode == 3 {
+        println!("Please enter the input for the computer:");
         let mut input = String::new();
         io::stdin()
             .read_line(&mut input)
             .expect("error: unable to read user input");
-        let mode = get_mode(instruction, 1);
-        let result_address = get_input_for_mode(mode, input.parse::<i32>().unwrap(), &memory);
+        let result_address = get_input_for_mode(0, input.trim().parse::<i32>().unwrap(), &memory);
         // println!(
         //     "OpCode(3) - first_value: {:?}, second_value: {:?}, result_address: {:?}",
         //     first_value, second_value, result_address
@@ -68,7 +76,7 @@ fn get_mode(instruction: i32, index: usize) -> u32 {
         .to_string()
         .chars()
         .nth(index)
-        .unwrap()
+        .unwrap_or('0')
         .to_digit(10)
         .unwrap();
     println!("Mode: {:?}", mode);
@@ -76,8 +84,6 @@ fn get_mode(instruction: i32, index: usize) -> u32 {
 }
 fn get_input_for_mode(mode: u32, index: i32, memory: &std::vec::Vec<i32>) -> i32 {
     if mode == 0 {
-        println!("Index: {:?}", index);
-        println!("Memory: {:?}", memory);
         return memory[memory[(index) as usize] as usize];
     }
     return memory[index as usize];
